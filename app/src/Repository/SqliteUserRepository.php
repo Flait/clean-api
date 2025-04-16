@@ -32,10 +32,16 @@ final class SqliteUserRepository implements UserRepositoryInterface
 
     public function save(User $user): void
     {
+        $hashedPassword = password_hash($user->getPassword(), PASSWORD_BCRYPT);
         $this->db->table('user')->insert([
             'email' => $user->getEmail(),
-            'password' => $user->getPassword(),
+            'password' => $hashedPassword,
             'role' => $user->getRole()->value,
         ]);
+    }
+
+    public function verifyPassword(User $user, string $password): bool
+    {
+        return password_verify($password, $user->getPassword());
     }
 }
