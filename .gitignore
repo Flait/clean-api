@@ -1,0 +1,21 @@
+# Composer
+/vendor/
+
+# Nette
+/temp/
+/log/
+
+# Dotenv
+.env
+.env.*
+!.env.local
+
+# Docker
+.dockerignore
+
+# IDE & OS files
+/.idea/
+/.vscode/
+*.iml
+.DS_Store
+Thumbs.db
