@@ -29,6 +29,7 @@ class User
         $this->password = $password;
         $this->role = $role->value;
     }
+
     public function getId(): int
     {
         return $this->id;
