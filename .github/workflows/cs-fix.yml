@@ -15,7 +15,7 @@ jobs:
           php-version: '8.2'
 
       - name: Install dependencies
-        run: composer install --no-progress --no-suggest
+        run: composer install --no-progress --no-suggest --dev  # Ensure dev dependencies are included
 
       - name: Run PHP CS Fixer
         run: vendor/bin/php-cs-fixer fix --dry-run --diff --config=.php-cs-fixer.dist.php
