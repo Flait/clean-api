@@ -11,7 +11,9 @@
         "symfony/yaml": "^7.2",
     "nette/database": "^3.2",
     "firebase/php-jwt": "^6.11",
-    "nette/application": "^3.2"
+    "nette/application": "^3.2",
+    "nette/bootstrap": "^3.2",
+    "tracy/tracy": "^2.10"
     },
     "require-dev": {
         "doctrine/orm": "^3.3",

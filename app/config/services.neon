@@ -1,0 +1,30 @@
+services:
+
+    # === TOKEN ===
+    tokenService:
+        class: App\Service\Token\JwtTokenService
+        arguments:
+            - %jwtSecret%
+        tags: [App\Service\Token\TokenServiceInterface]
+
+    # === REPOSITORY ===
+    userRepository:
+        class: App\Repository\UserRepository
+        tags: [App\Repository\UserRepositoryInterface]
+
+    # === AUTHORIZATION ===
+    - App\Service\Authorization\AuthorizationService
+    - App\Service\Authorization\AdminAuthorizationStrategy
+    - App\Service\Authorization\AuthorAuthorizationStrategy
+    - App\Service\Authorization\ReaderAuthorizationStrategy
+
+    authorizationStrategyResolver:
+        class: App\Service\Authorization\AuthorizationStrategyResolver
+        arguments:
+            strategies:
+                App\Enum\Role::ADMIN: @App\Service\Authorization\AdminAuthorizationStrategy
+                App\Enum\Role::AUTHOR: @App\Service\Authorization\AuthorAuthorizationStrategy
+                App\Enum\Role::READER: @App\Service\Authorization\ReaderAuthorizationStrategy
+        tags: [App\Service\Authorization\AuthorizationStrategyInterface]
+
+    - App\Enum\RepositoryDriver

@@ -19,3 +19,8 @@
 *.iml
 .DS_Store
 Thumbs.db
+
+# Others
+.php-cs-fixer.cache
+database.db
+

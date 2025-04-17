@@ -6,7 +6,7 @@ use App\Entity\User;
 use App\Enum\Role;
 use Nette\Database\Explorer;
 
-final class SqliteUserRepository implements UserRepositoryInterface
+final class UserRepository implements UserRepositoryInterface
 {
     public function __construct(
         private Explorer $db,

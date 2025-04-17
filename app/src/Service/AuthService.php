@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Exception\InvalidCredentialsException;
 use App\Repository\UserRepositoryInterface;
+use App\Service\Token\TokenServiceInterface;
 
 final class AuthService
 {

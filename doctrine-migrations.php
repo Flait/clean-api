@@ -1,5 +1,6 @@
 <?php
 
+use Doctrine\DBAL\Tools\DsnParser;
 use Doctrine\ORM\ORMSetup;
 use Doctrine\ORM\EntityManager;
 use Doctrine\DBAL\DriverManager;
@@ -27,13 +28,22 @@ $config = ORMSetup::createAttributeMetadataConfiguration(
     isDevMode: true
 );
 
-$connectionParams = [
-    'url' => $_ENV['DATABASE_URL'],
-    'driver' => 'pdo_sqlite',
-];
+$dsn = $_ENV['DATABASE_URL'] ?? null;
 
+if ($dsn === null) {
+    throw new RuntimeException('DATABASE_URL not set');
+}
+// --- parse pdo_sqlite ---
+if (str_starts_with($dsn, 'sqlite:')) {
+    $path = substr($dsn, strlen('sqlite:'));
+    $connectionParams = [
+        'driver' => 'pdo_sqlite',
+        'path' => $path,
+    ];
+} else {
+    throw new RuntimeException('Unsupported DSN: ' . $dsn);
+}
 $connection = DriverManager::getConnection($connectionParams, $config);
-
 
 $entityManager = new EntityManager($connection, $config);
 
