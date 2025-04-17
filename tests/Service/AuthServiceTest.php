@@ -7,7 +7,7 @@ use App\Enum\Role;
 use App\Exception\InvalidCredentialsException;
 use App\Repository\UserRepositoryInterface;
 use App\Service\AuthService;
-use App\Service\TokenServiceInterface;
+use App\Service\Token\TokenServiceInterface;
 use PHPUnit\Framework\TestCase;
 
 final class AuthServiceTest extends TestCase
@@ -33,7 +33,7 @@ final class AuthServiceTest extends TestCase
     {
         $email = 'test@example.com';
         $password = 'secret';
-        $user = new User($email, password_hash($password, PASSWORD_DEFAULT), Role::Author);
+        $user = new User($email, password_hash($password, PASSWORD_DEFAULT), Role::AUTHOR);
 
         $this->userRepoMock->method('findByEmail')->with($email)->willReturn($user);
 
@@ -47,7 +47,7 @@ final class AuthServiceTest extends TestCase
     public function testInvalidPasswordThrows(): void
     {
         $email = 'test@example.com';
-        $user = new User($email, password_hash('correct_password', PASSWORD_DEFAULT), Role::Author);
+        $user = new User($email, password_hash('correct_password', PASSWORD_DEFAULT), Role::AUTHOR);
 
         $this->userRepoMock->method('findByEmail')->with($email)->willReturn($user);
 

@@ -5,9 +5,12 @@ services:
       dockerfile: docker/php/Dockerfile
     volumes:
       - ./:/var/www/html
+      - ./data:/var/www/html/data
     working_dir: /var/www/html
     expose:
       - 9000
+    env_file:
+      - .env
 
   nginx:
     image: nginx:stable

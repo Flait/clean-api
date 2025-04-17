@@ -49,19 +49,4 @@ class User
     {
         return Role::from($this->role);
     }
-
-    public function isAdmin(): bool
-    {
-        return $this->role === Role::Admin;
-    }
-
-    public function isAuthor(): bool
-    {
-        return $this->role === Role::Author;
-    }
-
-    public function isReader(): bool
-    {
-        return $this->role === Role::Reader;
-    }
 }
