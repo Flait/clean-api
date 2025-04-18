@@ -12,6 +12,15 @@ services:
         class: App\Repository\UserRepository
         tags: [App\Repository\UserRepositoryInterface]
 
+    databaseArticleRepository:
+        class: App\Repository\Article\DatabaseArticleRepository
+
+    articleRepository:
+        class: App\Repository\Article\CachedArticleRepository
+        arguments:
+            - @databaseArticleRepository
+        tags: [App\Repository\Article\ArticleRepositoryInterface]
+
     # === AUTHORIZATION ===
     - App\Service\Authorization\AuthorizationService
     - App\Service\Authorization\AdminAuthorizationStrategy
