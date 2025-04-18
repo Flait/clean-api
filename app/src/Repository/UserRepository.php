@@ -34,9 +34,9 @@ final class UserRepository implements UserRepositoryInterface
     {
         $hashedPassword = password_hash($user->getPassword(), PASSWORD_BCRYPT);
         $this->db->table('user')->insert([
-            'email' => $user->getEmail(),
+            'email'    => $user->getEmail(),
             'password' => $hashedPassword,
-            'role' => $user->getRole()->value,
+            'role'     => $user->getRole()->value,
         ]);
     }
 

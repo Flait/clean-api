@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+namespace App\Tests\Unit\Service;
+
 use App\Entity\User;
 use App\Enum\Role;
 use App\Exception\InvalidCredentialsException;
