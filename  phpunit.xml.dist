@@ -9,11 +9,19 @@
         <testsuite name="App Test Suite">
             <directory>tests</directory>
         </testsuite>
+
+        <testsuite name="Unit">
+            <directory>tests/Unit</directory>
+        </testsuite>
+
+        <testsuite name="Integration">
+            <directory>tests/Integration</directory>
+        </testsuite>
     </testsuites>
 
     <coverage processUncoveredFiles="true">
         <include>
-            <directory suffix=".php">app/src</directory>
+            <directory suffix=".php">app</directory>
         </include>
     </coverage>
 </phpunit>

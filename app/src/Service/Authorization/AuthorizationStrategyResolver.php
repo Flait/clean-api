@@ -3,6 +3,7 @@
 namespace App\Service\Authorization;
 
 use App\Entity\User;
+use RuntimeException;
 
 class AuthorizationStrategyResolver
 {
@@ -19,7 +20,7 @@ class AuthorizationStrategyResolver
         $role = $user->getRole()->value;
 
         if (!isset($this->strategies[$role])) {
-            throw new \RuntimeException("No strategy found for role: $role");
+            throw new RuntimeException("No strategy found for role: $role");
         }
 
         return $this->strategies[$role];
