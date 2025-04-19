@@ -17,10 +17,10 @@ final class JwtTokenService implements TokenServiceInterface
     public function encode(User $user): string
     {
         $payload = [
-            'sub' => $user->getEmail(),
+            'sub'  => $user->getEmail(),
             'role' => $user->getRole()->value,
-            'iat' => time(),
-            'exp' => time() + 3600,
+            'iat'  => time(),
+            'exp'  => time() + 3600,
         ];
 
         return JWT::encode($payload, $this->secret, $this->algo);

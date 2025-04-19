@@ -2,11 +2,14 @@
 
 declare(strict_types=1);
 
+namespace App\Tests\Unit\Service\Authorization;
+
 use App\Entity\User;
 use App\Enum\Role;
 use App\Service\Authorization\AuthorizationStrategyInterface;
 use App\Service\Authorization\AuthorizationStrategyResolver;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 
 final class AuthorizationStrategyResolverTest extends TestCase
 {

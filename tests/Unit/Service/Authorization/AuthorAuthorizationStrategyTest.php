@@ -2,33 +2,23 @@
 
 declare(strict_types=1);
 
-use App\Enum\Role;
-use App\Entity\User;
+namespace App\Tests\Unit\Service\Authorization;
+
 use App\Enum\Action;
+use App\Enum\Role;
 use App\Service\Authorization\AuthorAuthorizationStrategy;
+use App\Tests\CreatesUserWithId;
 use PHPUnit\Framework\TestCase;
 
 final class AuthorAuthorizationStrategyTest extends TestCase
 {
+    use CreatesUserWithId;
     private AuthorAuthorizationStrategy $strategy;
 
     protected function setUp(): void
     {
         $this->strategy = new AuthorAuthorizationStrategy();
     }
-
-    private function createUserWithId(string $email, string $password, Role $role, int $id): User
-    {
-        $user = new User($email, $password, $role);
-
-        $reflection = new \ReflectionClass($user);
-        $property = $reflection->getProperty('id');
-        $property->setAccessible(true);
-        $property->setValue($user, $id);
-
-        return $user;
-    }
-
 
     public function testCanCreateArticle(): void
     {
@@ -41,7 +31,7 @@ final class AuthorAuthorizationStrategyTest extends TestCase
     {
         $author = $this->createUserWithId('author@example.com', 'secret', Role::AUTHOR, 1);
 
-        $this->assertTrue($this->strategy->canAccess($author, Action::UPDATE_OWN_ARTICLE));
+        $this->assertTrue($this->strategy->canAccess($author, Action::UPDATE_OWN_ARTICLE, $author->getId()));
     }
 
     public function testCannotDeleteOthersArticle(): void

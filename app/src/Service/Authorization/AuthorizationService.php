@@ -13,7 +13,7 @@ final class AuthorizationService
     ) {
     }
 
-    public function check(User $user, Action $action, ?int $resourceOwnerId = null): bool
+    private function check(User $user, Action $action, ?int $resourceOwnerId = null): bool
     {
         $strategy = $this->resolver->resolve($user);
         return $strategy->canAccess($user, $action, $resourceOwnerId);
