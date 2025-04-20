@@ -4,7 +4,7 @@ use PhpCsFixer\Config;
 use PhpCsFixer\Finder;
 
 $finder = Finder::create()
-    ->in(__DIR__ . '/app/src')
+    ->in(__DIR__ . '/app')
     ->in(__DIR__ . '/tests')
     ->name('*.php')
     ->exclude('var')

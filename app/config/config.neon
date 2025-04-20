@@ -1,6 +1,0 @@
-includes:
-    - config.local.neon
-    - services.neon
-
-database:
-    dsn: %env(DATABASE_URL)%

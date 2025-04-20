@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Tests\Service\Authorization;
 
-use App\Entity\User;
 use App\Enum\Action;
 use App\Enum\Role;
 use App\Exception\ForbiddenException;
@@ -34,8 +33,8 @@ final class AuthorizationServiceTest extends TestCase
 
     public function testAdminCanDeleteAnyUser(): void
     {
-        $admin = $this->createUserWithId('admin@example.com', 'password', Role::ADMIN, 1);
-        $this->service->assertCan($admin, Action::DELETE_ARTICLE, 999);
+        $admin = $this->createUserWithId('admin@example.com', 'password', 'test', Role::ADMIN, 1);
+        $this->service->assertCan($admin, Action::ARTICLE_DELETE, 999);
         $this->addToAssertionCount(1);
     }
 
@@ -43,14 +42,14 @@ final class AuthorizationServiceTest extends TestCase
     {
         $this->expectException(ForbiddenException::class);
 
-        $reader = $this->createUserWithId('reader@example.com', 'password', Role::READER, 1);
-        $this->service->assertCan($reader, Action::CREATE_ARTICLE);
+        $reader = $this->createUserWithId('reader@example.com', 'password', 'test', Role::READER, 1);
+        $this->service->assertCan($reader, Action::ARTICLE_CREATE);
     }
 
     public function testAuthorCanUpdateOwnArticle(): void
     {
-        $author = $this->createUserWithId('author@example.com', 'password', Role::AUTHOR, 3);
-        $this->service->assertCan($author, Action::UPDATE_OWN_ARTICLE, 3);
+        $author = $this->createUserWithId('author@example.com', 'password', 'test', Role::AUTHOR, 3);
+        $this->service->assertCan($author, Action::ARTICLE_UPDATE, 3);
         $this->addToAssertionCount(1);
     }
 
@@ -58,7 +57,7 @@ final class AuthorizationServiceTest extends TestCase
     {
         $this->expectException(ForbiddenException::class);
 
-        $author = $this->createUserWithId('author@example.com', 'password', Role::AUTHOR, 1);
-        $this->service->assertCan($author, Action::UPDATE_OWN_ARTICLE, 9999999);
+        $author = $this->createUserWithId('author@example.com', 'password', 'test', Role::AUTHOR, 1);
+        $this->service->assertCan($author, Action::ARTICLE_UPDATE, 9999999);
     }
 }

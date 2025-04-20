@@ -1,0 +1,63 @@
+services:
+
+    # === TOKEN ===
+    tokenService:
+        class: App\Service\Token\JwtTokenService
+        arguments:
+            secret: 'secret'
+
+    'App\Service\Token\TokenServiceInterface':
+        factory: @tokenService
+
+    # === REPOSITORY ===
+    - App\Repository\UserRepository(App\Repository\UserRepositoryInterface)
+
+    databaseArticleRepository:
+        class: App\Repository\Article\DatabaseArticleRepository
+        autowired: false
+
+    articleRepository:
+        class: App\Repository\Article\CachedArticleRepository
+        arguments:
+            - @databaseArticleRepository
+
+    'App\Repository\Article\ArticleRepositoryInterface':
+        factory: @articleRepository
+
+
+    # === FACADE ===
+    articleFacade:
+        class: App\Service\Article\ArticleFacade
+        arguments:
+            $articleRepository: @App\Repository\Article\ArticleRepositoryInterface
+
+    'App\Service\Article\ArticleFacadeInterface':
+        factory: @articleFacade
+
+    userFacade:
+        class: App\Service\User\UserFacade
+
+
+    # === PRESENTERS ===
+    - App\Presenter\AuthPresenter
+    - App\Presenter\UserPresenter
+    - App\Presenter\ArticlePresenter
+
+
+    # === AUTHORIZATION ===
+    - App\Service\Authorization\AuthorizationService
+    - App\Service\Authorization\AdminAuthorizationStrategy
+    - App\Service\Authorization\AuthorAuthorizationStrategy
+    - App\Service\Authorization\ReaderAuthorizationStrategy
+
+    authorizationStrategyResolver:
+        class: App\Service\Authorization\AuthorizationStrategyResolver
+        arguments:
+            strategies:
+                App\Enum\Role::ADMIN: @App\Service\Authorization\AdminAuthorizationStrategy
+                App\Enum\Role::AUTHOR: @App\Service\Authorization\AuthorAuthorizationStrategy
+                App\Enum\Role::READER: @App\Service\Authorization\ReaderAuthorizationStrategy
+
+
+    # === ENUM / OTHER ===
+    - App\Enum\RepositoryDriver

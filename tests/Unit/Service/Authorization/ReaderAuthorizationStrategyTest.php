@@ -22,14 +22,14 @@ final class ReaderAuthorizationStrategyTest extends TestCase
 
     public function testReaderCanOnlyViewArticle(): void
     {
-        $reader = $this->createUserWithId('admin@example.com', 'secret', Role::READER, 1);
+        $reader = $this->createUserWithId('admin@example.com', 'secret', 'test', Role::READER, 1);
 
-        $this->assertTrue($this->strategy->canAccess($reader, Action::VIEW_ARTICLE));
+        $this->assertTrue($this->strategy->canAccess($reader, Action::ARTICLE_DETAIL));
 
         $disallowed = [
-            Action::CREATE_ARTICLE,
-            Action::UPDATE_OWN_ARTICLE,
-            Action::DELETE_ARTICLE,
+            Action::ARTICLE_CREATE,
+            Action::ARTICLE_UPDATE,
+            Action::ARTICLE_DELETE,
         ];
 
         foreach ($disallowed as $action) {
