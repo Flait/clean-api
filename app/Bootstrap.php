@@ -2,27 +2,64 @@
 
 declare(strict_types=1);
 
-use Nette\Bootstrap\Configurator;
+namespace App;
+
 use Dotenv\Dotenv;
+use Nette;
+use Nette\Bootstrap\Configurator;
 
-require __DIR__ . '/../vendor/autoload.php';
+class Bootstrap
+{
+    private Configurator $configurator;
+    private string $rootDir;
 
-// Load .env
-$dotenv = Dotenv::createImmutable(__DIR__ . '/../');
-$dotenv->safeLoad();
+    public function __construct()
+    {
+        $this->rootDir = dirname(__DIR__);
+        $this->configurator = new Configurator();
+        $this->configurator->setTempDirectory($this->rootDir . '/temp');
+    }
 
-$configurator = new Configurator;
+    public function bootWebApplication(): Nette\DI\Container
+    {
+        // Initialize environment (load .env file)
+        $this->initializeEnvironment();
 
-// Log dir
-$configurator->setTempDirectory(__DIR__ . '/../temp');
+        // Set up the container (add all necessary configurations)
+        $this->setupContainer();
 
-// Debug (you can switch to false for prod)
-$configurator->setDebugMode(true);
-$configurator->enableTracy(__DIR__ . '/../log');
+        // Now create the container, which will have access to all the configurations
+        $configurator = $this->configurator->createContainer();
 
-// Load configs
-$configurator->addConfig(__DIR__ . '/config/config.neon');
-$configurator->addConfig(__DIR__ . '/config/config.local.neon');
+        // Dump the parameters after container is fully set up
+        var_dump($configurator->getParameters());
+        die;
+    }
 
-// Create DI container
-return $configurator->createContainer();
+    public function initializeEnvironment(): void
+    {
+        // Load the .env file using vlucas/phpdotenv
+        $dotenv = Dotenv::createImmutable($this->rootDir);
+        $dotenv->load(); // This should populate $_SERVER and $_ENV with values
+
+        // Optional: Log values if needed for debugging
+        dump($_SERVER['JWT_SECRET']);  // Check if JWT_SECRET is available
+        dump($_SERVER['DATABASE_URL']);  // Check if DATABASE_URL is available
+
+        // Enable Tracy for debugging
+        $this->configurator->enableTracy($this->rootDir . '/log');
+
+        // Register the autoloader
+        $this->configurator->createRobotLoader()
+            ->addDirectory(__DIR__)
+            ->register();
+    }
+
+    private function setupContainer(): void
+    {
+        $configDir = $this->rootDir . '/config';
+        $this->configurator->addConfig($configDir . '/config.local.neon');
+        $this->configurator->addConfig($configDir . '/config.neon');
+        $this->configurator->addConfig($configDir . '/services.neon');
+    }
+}

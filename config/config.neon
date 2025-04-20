@@ -1,0 +1,12 @@
+includes:
+    - services.neon
+
+parameters:
+    jwtSecret: %env(JWT_SECRET)%
+    databaseUrl: %env(DATABASE_URL)%
+
+database:
+    default:
+        dsn: 'sqlite:/var/www/html/data/database.db'
+        user: null
+        password: null

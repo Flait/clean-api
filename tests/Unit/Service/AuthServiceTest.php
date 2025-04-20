@@ -4,16 +4,17 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Service;
 
-use App\Entity\User;
 use App\Enum\Role;
 use App\Exception\InvalidCredentialsException;
 use App\Repository\UserRepositoryInterface;
 use App\Service\AuthService;
 use App\Service\Token\TokenServiceInterface;
+use App\Tests\CreatesUserWithId;
 use PHPUnit\Framework\TestCase;
 
 final class AuthServiceTest extends TestCase
 {
+    use CreatesUserWithId;
     private AuthService $authService;
     private UserRepositoryInterface $userRepoMock;
     private TokenServiceInterface $tokenServiceMock;
@@ -35,7 +36,7 @@ final class AuthServiceTest extends TestCase
     {
         $email = 'test@example.com';
         $password = 'secret';
-        $user = new User($email, password_hash($password, PASSWORD_DEFAULT), Role::AUTHOR);
+        $user = $this->createUserWithId($email, password_hash($password, PASSWORD_DEFAULT), 'test', Role::AUTHOR, 1);
 
         $this->userRepoMock->method('findByEmail')->with($email)->willReturn($user);
 
@@ -49,7 +50,7 @@ final class AuthServiceTest extends TestCase
     public function testInvalidPasswordThrows(): void
     {
         $email = 'test@example.com';
-        $user = new User($email, password_hash('correct_password', PASSWORD_DEFAULT), Role::AUTHOR);
+        $user = $this->createUserWithId($email, password_hash('correct_password', PASSWORD_DEFAULT), 'test', Role::AUTHOR, 1);
 
         $this->userRepoMock->method('findByEmail')->with($email)->willReturn($user);
 

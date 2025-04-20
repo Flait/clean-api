@@ -1,2 +1,0 @@
-parameters:
-    jwtSecret: %env(JWT_SECRET)%

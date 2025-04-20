@@ -22,7 +22,7 @@ final class AdminAuthorizationStrategyTest extends TestCase
 
     public function testAdminCanDoAnything(): void
     {
-        $admin = $this->createUserWithId('admin@example.com', 'secret', Role::ADMIN, 1);
+        $admin = $this->createUserWithId('admin@example.com', 'secret', 'test', Role::ADMIN, 1);
 
         foreach (Action::cases() as $action) {
             $this->assertTrue($this->strategy->canAccess($admin, $action), "Admin should have access to {$action->value}");

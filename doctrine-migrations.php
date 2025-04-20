@@ -24,7 +24,7 @@ $dotenv->safeLoad();
 
 // use attribute metadata (you can also use annotations if you prefer)
 $config = ORMSetup::createAttributeMetadataConfiguration(
-    paths: [__DIR__ . '/app/src/Entity'], // change if your entities live elsewhere
+    paths: [__DIR__ . '/app/Entity'], // change if your entities live elsewhere
     isDevMode: true
 );
 

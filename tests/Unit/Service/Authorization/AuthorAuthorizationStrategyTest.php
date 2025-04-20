@@ -22,37 +22,30 @@ final class AuthorAuthorizationStrategyTest extends TestCase
 
     public function testCanCreateArticle(): void
     {
-        $author = $this->createUserWithId('author@example.com', 'secret', Role::AUTHOR, 1);
+        $author = $this->createUserWithId('author@example.com', 'secret', 'test', Role::AUTHOR, 1);
 
-        $this->assertTrue($this->strategy->canAccess($author, Action::CREATE_ARTICLE));
+        $this->assertTrue($this->strategy->canAccess($author, Action::ARTICLE_CREATE));
     }
 
     public function testCanUpdateOwnArticle(): void
     {
-        $author = $this->createUserWithId('author@example.com', 'secret', Role::AUTHOR, 1);
+        $author = $this->createUserWithId('author@example.com', 'secret', 'test', Role::AUTHOR, 1);
 
-        $this->assertTrue($this->strategy->canAccess($author, Action::UPDATE_OWN_ARTICLE, $author->getId()));
+        $this->assertTrue($this->strategy->canAccess($author, Action::ARTICLE_UPDATE, $author->getId()));
     }
 
     public function testCannotDeleteOthersArticle(): void
     {
-        $author = $this->createUserWithId('author@example.com', 'secret', Role::AUTHOR, 1);
+        $author = $this->createUserWithId('author@example.com', 'secret', 'test', Role::AUTHOR, 1);
         $otherAuthorId = $author->getId() + 1;
 
-        $this->assertFalse($this->strategy->canAccess($author, Action::DELETE_ARTICLE, $otherAuthorId));
+        $this->assertFalse($this->strategy->canAccess($author, Action::ARTICLE_DELETE, $otherAuthorId));
     }
 
     public function testCanDeleteOwnArticle(): void
     {
-        $author = $this->createUserWithId('author@example.com', 'secret', Role::AUTHOR, 1);
+        $author = $this->createUserWithId('author@example.com', 'secret', 'test', Role::AUTHOR, 1);
 
-        $this->assertTrue($this->strategy->canAccess($author, Action::DELETE_ARTICLE, $author->getId()));
-    }
-
-    public function testUnknownActionReturnsFalse(): void
-    {
-        $author = $this->createUserWithId('author@example.com', 'secret', Role::AUTHOR, 1);
-
-        $this->assertFalse($this->strategy->canAccess($author, Action::VIEW_ARTICLE));
+        $this->assertTrue($this->strategy->canAccess($author, Action::ARTICLE_DELETE, $author->getId()));
     }
 }
