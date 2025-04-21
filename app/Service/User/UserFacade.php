@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Service\User;
 
 use App\DTO\User\CreateUserData;
@@ -10,13 +12,17 @@ use App\Entity\User;
 use App\Enum\Action;
 use App\Exception\NotFoundException;
 use App\Repository\UserRepository;
+use App\Service\Auth\AuthService;
 use App\Service\Authorization\AuthorizationService;
+use Symfony\Component\Serializer\SerializerInterface;
 
 final class UserFacade
 {
     public function __construct(
         private UserRepository $userRepository,
         private AuthorizationService $authorizationService,
+        private AuthService $authService,
+        private SerializerInterface $serializer,
     ) {
     }
 
@@ -27,20 +33,12 @@ final class UserFacade
         $users = $this->userRepository->findAll();
 
         $responses = array_map(
-            fn (User $user) => new UserResponse(
-                id: $user->getId(),
-                email: $user->getEmail(),
-                name: $user->getName(),
-                role: $user->getRole()->value,
-            ),
-            $users,
+            fn (array $data) => $this->serializer->denormalize($data, UserResponse::class),
+            $this->serializer->normalize($users)
         );
 
         return new UserListResponse(
-            users: $responses,
-            page: 1,
-            perPage: count($responses),
-            total: count($responses),
+            users: $responses
         );
     }
 
@@ -54,26 +52,16 @@ final class UserFacade
             throw new NotFoundException('User not found', 404);
         }
 
-        return new UserResponse(
-            id: $user->getId(),
-            email: $user->getEmail(),
-            name: $user->getName(),
-            role: $user->getRole()->value,
+        return $this->serializer->denormalize(
+            $this->serializer->normalize($user),
+            UserResponse::class
         );
     }
 
     public function create(User $actor, CreateUserData $data): void
     {
-        $this->authorizationService->assertCan($actor, Action::USER_CREATE);
-
-        $user = new User(
-            email: $data->email,
-            passwordHash: $data->password,
-            name: $data->name,
-            role: $data->role,
-        );
-
-        $this->userRepository->save($user);
+        $this->authorizationService->assertCan($actor, Action::USER_UPDATE);
+        $this->authService->register($data);
     }
 
     public function update(User $actor, int $id, UpdateUserData $data): void
@@ -86,12 +74,7 @@ final class UserFacade
             throw new NotFoundException('User not found', 404);
         }
 
-        // Explicit updates:
-        $user->setEmail($data->email);
-        $user->setName($data->name);
-        $user->setRole($data->role);
-
-        $this->userRepository->save($user);
+        $this->userRepository->update($user, $data);
     }
 
     public function delete(User $actor, int $id): void

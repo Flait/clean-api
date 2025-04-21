@@ -1,12 +1,130 @@
-includes:
-    - services.neon
+application:
+    mapping:
+        *: App\Presenter\*Presenter
 
 parameters:
-    jwtSecret: %env(JWT_SECRET)%
-    databaseUrl: %env(DATABASE_URL)%
+    jwtSecret: 'secret'
+    databaseUrl: 'sqlite:/var/www/html/data/database.db'
+    cache:
+        articleExpire: '10 minutes'
 
 database:
     default:
-        dsn: 'sqlite:/var/www/html/data/database.db'
+        dsn: %databaseUrl%
         user: null
         password: null
+
+services:
+    # === PACKAGES ===
+    router: App\Router\RouterFactory::createRouter
+
+    propertyAccessor: Symfony\Component\PropertyAccess\PropertyAccessor
+
+    dateTimeNormalizer:
+        class: Symfony\Component\Serializer\Normalizer\DateTimeNormalizer
+        arguments:
+            defaultContext:
+                datetime_format: 'c'
+
+    enumNormalizer:
+        class: Symfony\Component\Serializer\Normalizer\BackedEnumNormalizer
+
+    objectNormalizer:
+        class: Symfony\Component\Serializer\Normalizer\ObjectNormalizer
+        factory: Symfony\Component\Serializer\Normalizer\ObjectNormalizer(
+            null,
+            null,
+            @propertyAccessor
+        )
+
+    serializer:
+        factory: Symfony\Component\Serializer\Serializer
+        arguments:
+            - [
+                @dateTimeNormalizer,
+                @enumNormalizer,
+                @objectNormalizer
+            ]
+
+    # === AUTH ===
+
+    userContext:
+        class: App\Service\UserContext
+
+    - App\Service\Auth\AuthService
+
+    # === TOKEN ===
+
+    jwtTokenService:
+        class: App\Service\Auth\Token\JwtTokenService
+        arguments:
+            secret: %jwtSecret%
+
+    tokenServiceInterface: @jwtTokenService
+
+    jwtAuthenticator:
+        class: App\Service\Auth\JwtAuthenticator
+        arguments:
+            tokenService: @jwtTokenService
+            userRepository: @userRepository
+
+    AuthenticatorInterface: @jwtAuthenticator
+
+    # === REPOSITORY ===
+    userRepository:
+        class: App\Repository\UserRepository
+
+    userRepositoryInterface:
+        factory: @userRepository
+
+    databaseArticleRepository:
+        class: App\Repository\Article\DatabaseArticleRepository
+        autowired: false
+
+    articleRepository:
+        class: App\Repository\Article\CachedArticleRepository
+        arguments:
+            - @databaseArticleRepository
+
+    articleRepositoryInterface:
+        factory: @articleRepository
+
+    # === FACADE ===
+    articleFacade:
+        class: App\Service\Article\ArticleFacade
+
+    articleFacadeInterface:
+        factory: @articleFacade
+
+    userFacade:
+        class: App\Service\User\UserFacade
+
+    # === PRESENTERS ===
+    authPresenter:
+        class: App\Presenter\AuthPresenter
+    - App\Presenter\UserPresenter
+    - App\Presenter\ArticlePresenter
+
+    # === AUTHORIZATION ===
+    - App\Service\Authorization\AuthorizationService
+    - App\Service\Authorization\AdminAuthorizationStrategy
+    - App\Service\Authorization\AuthorAuthorizationStrategy
+    - App\Service\Authorization\ReaderAuthorizationStrategy
+
+    authorizationStrategyResolver:
+        class: App\Service\Authorization\AuthorizationStrategyResolver
+        arguments:
+            strategies:
+                admin: @App\Service\Authorization\AdminAuthorizationStrategy
+                author: @App\Service\Authorization\AuthorAuthorizationStrategy
+                reader: @App\Service\Authorization\ReaderAuthorizationStrategy
+
+    # === CACHING ===
+    cacheStorage:
+        factory: Nette\Caching\Storages\FileStorage('%tempDir%/cache')
+
+    cache:
+        factory: Nette\Caching\Cache(@cacheStorage)
+
+    # === ENUM / OTHER ===
+    - App\Enum\RepositoryDriver

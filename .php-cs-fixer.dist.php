@@ -34,5 +34,6 @@ return (new Config())
         'phpdoc_scalar' => true,
         'phpdoc_align' => true,
         'phpdoc_separation' => true,
+        'declare_strict_types' => true,
     ])
     ->setFinder($finder);

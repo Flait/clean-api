@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Repository\Article;
 
+use App\DTO\Article\UpdateArticleData;
 use App\Entity\Article;
 
 interface ArticleRepositoryInterface
@@ -15,7 +18,7 @@ interface ArticleRepositoryInterface
 
     public function insert(Article $article): void;
 
-    public function update(Article $article): void;
+    public function update(Article $article, UpdateArticleData $data): void;
 
     public function delete(Article $article): void;
 }

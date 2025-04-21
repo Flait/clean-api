@@ -1,9 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use App\Enum\Role;
 use Doctrine\ORM\Mapping as ORM;
+use Nette\Database\Table\ActiveRow;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'user')]
@@ -17,7 +20,7 @@ class User
     #[ORM\Column(type: 'string', unique: true)]
     private string $email;
 
-    #[ORM\Column(type: 'string')]
+    #[ORM\Column(name: 'password_hash', type: 'string')]
     private string $passwordHash;
 
     #[ORM\Column(type: 'string')]
@@ -72,5 +75,19 @@ class User
     public function setRole(Role $role): void
     {
         $this->role = $role->value;
+    }
+
+    public static function fromRow(ActiveRow $row): self
+    {
+        $user = new self(
+            email: $row->email,
+            passwordHash: $row->password_hash,
+            name: $row->name,
+            role: Role::from($row->role),
+        );
+
+        $user->id = (int) $row->id;
+
+        return $user;
     }
 }

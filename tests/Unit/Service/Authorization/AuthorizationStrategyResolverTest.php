@@ -7,7 +7,7 @@ namespace App\Tests\Unit\Service\Authorization;
 use App\Enum\Role;
 use App\Service\Authorization\AuthorizationStrategyInterface;
 use App\Service\Authorization\AuthorizationStrategyResolver;
-use App\Tests\CreatesUserWithId;
+use App\Tests\Trait\CreatesUserWithId;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 

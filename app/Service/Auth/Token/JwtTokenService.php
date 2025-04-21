@@ -1,6 +1,8 @@
 <?php
 
-namespace App\Service\Token;
+declare(strict_types=1);
+
+namespace App\Service\Auth\Token;
 
 use App\Entity\User;
 use Firebase\JWT\JWT;
@@ -20,7 +22,7 @@ final class JwtTokenService implements TokenServiceInterface
             'sub'  => $user->getEmail(),
             'role' => $user->getRole()->value,
             'iat'  => time(),
-            'exp'  => time() + 3600,
+            'exp'  => time() + 360000,
         ];
 
         return JWT::encode($payload, $this->secret, $this->algo);

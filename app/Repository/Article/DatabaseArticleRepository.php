@@ -1,9 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Repository\Article;
 
+use App\DTO\Article\UpdateArticleData;
 use App\Entity\Article;
 use App\Entity\User;
+use App\Helper\EntityChangeHelper;
 use App\Repository\UserRepository;
 use Nette\Database\Explorer;
 use Nette\Database\Table\ActiveRow;
@@ -52,16 +56,19 @@ final class DatabaseArticleRepository implements ArticleRepositoryInterface
         ]);
     }
 
-    public function update(Article $article): void
+    public function update(Article $article, UpdateArticleData $data): void
     {
+        $changes = EntityChangeHelper::diff($data, $article);
+
+        if (!$changes) {
+            return;
+        }
+
+        $changes['updated_at'] = new \DateTimeImmutable();
+
         $this->db->table('article')
             ->where('id', $article->getId())
-            ->update([
-                'title'      => $article->getTitle(),
-                'content'    => $article->getContent(),
-                'author_id'  => $article->getAuthor()->getId(),
-                'updated_at' => $article->getUpdatedAt(),
-            ]);
+            ->update($changes);
     }
 
     public function delete(Article $article): void
@@ -75,24 +82,6 @@ final class DatabaseArticleRepository implements ArticleRepositoryInterface
         if (!$author instanceof User) {
             return null;
         }
-
-        $article = new Article(
-            title: $row->title,
-            content: $row->content,
-            author: $author,
-        );
-
-        // Optional: add setters or make Article support setting these in constructor if needed
-        $article->setCreatedAt(
-            \DateTimeImmutable::createFromInterface($row->created_at)
-        );
-        $article->setUpdatedAt(
-            \DateTimeImmutable::createFromInterface($row->updated_at)
-        );
-
-        // Assuming ID must also be set after hydration
-        $article->setId((int) $row->id);
-
-        return $article;
+        return Article::fromRow($row, $author);
     }
 }

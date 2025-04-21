@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\DTO\User;
 
 use App\Enum\Role;
 
-final readonly class CreateUserData
+final class CreateUserData
 {
     public function __construct(
         public readonly string $email,

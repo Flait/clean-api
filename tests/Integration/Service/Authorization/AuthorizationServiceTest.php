@@ -12,7 +12,7 @@ use App\Service\Authorization\AuthorAuthorizationStrategy;
 use App\Service\Authorization\AuthorizationService;
 use App\Service\Authorization\AuthorizationStrategyResolver;
 use App\Service\Authorization\ReaderAuthorizationStrategy;
-use App\Tests\CreatesUserWithId;
+use App\Tests\Trait\CreatesUserWithId;
 use PHPUnit\Framework\TestCase;
 
 final class AuthorizationServiceTest extends TestCase

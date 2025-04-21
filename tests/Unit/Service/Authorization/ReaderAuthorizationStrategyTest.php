@@ -7,7 +7,7 @@ namespace App\Tests\Unit\Service\Authorization;
 use App\Enum\Action;
 use App\Enum\Role;
 use App\Service\Authorization\ReaderAuthorizationStrategy;
-use App\Tests\CreatesUserWithId;
+use App\Tests\Trait\CreatesUserWithId;
 use PHPUnit\Framework\TestCase;
 
 final class ReaderAuthorizationStrategyTest extends TestCase
