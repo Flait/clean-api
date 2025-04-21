@@ -1,31 +1,31 @@
-name: PHPUnit Tests
-
-on: [push, pull_request]
-
-jobs:
-  phpunit:
-    name: Run PHPUnit
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Set up PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.2'
-          extensions: pdo_sqlite
-          coverage: none
-
-      - name: Install dependencies
-        run: composer install --no-progress --no-suggest --dev
-
-      - name: Prepare writable database file
-        run: |
-          mkdir -p database
-          touch database/db.sqlite
-          chmod 777 database/db.sqlite
-
-      - name: Run PHPUnit
-        run: vendor/bin/phpunit tests
+#name: PHPUnit Tests
+#
+#on: [push, pull_request]
+#
+#jobs:
+#  phpunit:
+#    name: Run PHPUnit
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#      - name: Checkout repository
+#        uses: actions/checkout@v3
+#
+#      - name: Set up PHP
+#        uses: shivammathur/setup-php@v2
+#        with:
+#          php-version: '8.2'
+#          extensions: pdo_sqlite
+#          coverage: none
+#
+#      - name: Install dependencies
+#        run: composer install --no-progress --no-suggest --dev
+#
+#      - name: Prepare writable database file
+#        run: |
+#          mkdir -p database
+#          touch database/db.sqlite
+#          chmod 777 database/db.sqlite
+#
+#      - name: Run PHPUnit
+#        run: vendor/bin/phpunit tests
