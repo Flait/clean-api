@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Presenter;
 
 use App\DTO\Article\CreateArticleData;
 use App\DTO\Article\UpdateArticleData;
-use App\Response\EmptyResponse;
+use App\Response\SimpleResponse;
 use App\Service\Article\ArticleFacadeInterface;
 use Nette\Application\Responses\JsonResponse;
 use Nette\DI\Attributes\Inject;
@@ -14,49 +16,49 @@ final class ArticlePresenter extends BasePresenter
     #[Inject]
     public ArticleFacadeInterface $articleFacade;
 
-    public function actionList(): JsonResponse
+    public function actionList(): void
     {
         $user = $this->getUserEntity();
         $articles = $this->articleFacade->list($user);
 
-        return new JsonResponse($articles);
+        $this->sendResponse(new JsonResponse($articles));
     }
 
-    public function actionDetail(int $id): JsonResponse
+    public function actionDetail(int $id): void
     {
         $user = $this->getUserEntity();
         $article = $this->articleFacade->detail($user, $id);
 
-        return new JsonResponse($article);
+        $this->sendResponse(new JsonResponse($article));
     }
 
-    public function actionCreate(): EmptyResponse
+    public function actionCreate(): void
     {
         $user = $this->getUserEntity();
-        $data = $this->parseJsonBody();
-        $dto = new CreateArticleData($data['title'], $data['content']);
+        /** @var CreateArticleData $dto */
+        $dto = $this->createDto(CreateArticleData::class, $this->parseJsonBody());
 
         $this->articleFacade->create($user, $dto);
 
-        return new EmptyResponse(201);
+        $this->sendResponse(new SimpleResponse(201, 'Article created successfully.'));
     }
 
-    public function actionUpdate(int $id): EmptyResponse
+    public function actionUpdate(int $id): void
     {
         $user = $this->getUserEntity();
-        $data = $this->parseJsonBody();
-        $dto = new UpdateArticleData($data['title'], $data['content']);
+        /** @var UpdateArticleData $dto */
+        $dto = $this->createDto(UpdateArticleData::class, $this->parseJsonBody());
 
         $this->articleFacade->update($user, $id, $dto);
 
-        return new EmptyResponse();
+        $this->sendResponse(new SimpleResponse(200, 'Article updated.'));
     }
 
-    public function actionDelete(int $id): EmptyResponse
+    public function actionDelete(int $id): void
     {
         $user = $this->getUserEntity();
         $this->articleFacade->delete($user, $id);
 
-        return new EmptyResponse();
+        $this->sendResponse(new SimpleResponse(200, 'Article deleted.'));
     }
 }

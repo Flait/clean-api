@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Unit\Service;
+namespace App\Tests\Unit\Service\Auth;
 
 use App\Enum\Role;
 use App\Exception\InvalidCredentialsException;
 use App\Repository\UserRepositoryInterface;
-use App\Service\AuthService;
-use App\Service\Token\TokenServiceInterface;
-use App\Tests\CreatesUserWithId;
+use App\Service\Auth\AuthService;
+use App\Service\Auth\Token\TokenServiceInterface;
+use App\Tests\Trait\CreatesUserWithId;
 use PHPUnit\Framework\TestCase;
 
 final class AuthServiceTest extends TestCase

@@ -1,15 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\DTO\User;
 
 use App\Enum\Role;
 
-final readonly class UpdateUserData
+final class UpdateUserData
 {
     public function __construct(
-        public readonly string $email,
-        public readonly string $name,
-        public readonly Role $role,
+        public readonly ?string $email,
+        public readonly ?string $name,
+        public readonly ?Role $role,
     ) {
     }
 }

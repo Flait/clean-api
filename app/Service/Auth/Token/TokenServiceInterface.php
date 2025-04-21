@@ -1,6 +1,8 @@
 <?php
 
-namespace App\Service\Token;
+declare(strict_types=1);
+
+namespace App\Service\Auth\Token;
 
 use App\Entity\User;
 

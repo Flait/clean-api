@@ -22,44 +22,30 @@ class Bootstrap
 
     public function bootWebApplication(): Nette\DI\Container
     {
-        // Initialize environment (load .env file)
         $this->initializeEnvironment();
 
-        // Set up the container (add all necessary configurations)
         $this->setupContainer();
 
-        // Now create the container, which will have access to all the configurations
-        $configurator = $this->configurator->createContainer();
-
-        // Dump the parameters after container is fully set up
-        var_dump($configurator->getParameters());
-        die;
+        return $this->configurator->createContainer();
     }
 
     public function initializeEnvironment(): void
     {
-        // Load the .env file using vlucas/phpdotenv
         $dotenv = Dotenv::createImmutable($this->rootDir);
         $dotenv->load(); // This should populate $_SERVER and $_ENV with values
 
-        // Optional: Log values if needed for debugging
-        dump($_SERVER['JWT_SECRET']);  // Check if JWT_SECRET is available
-        dump($_SERVER['DATABASE_URL']);  // Check if DATABASE_URL is available
-
-        // Enable Tracy for debugging
         $this->configurator->enableTracy($this->rootDir . '/log');
+        $this->configurator->setDebugMode(true);
 
-        // Register the autoloader
+
         $this->configurator->createRobotLoader()
-            ->addDirectory(__DIR__)
+            ->addDirectory(__DIR__. '/Presenter')
             ->register();
     }
 
     private function setupContainer(): void
     {
         $configDir = $this->rootDir . '/config';
-        $this->configurator->addConfig($configDir . '/config.local.neon');
         $this->configurator->addConfig($configDir . '/config.neon');
-        $this->configurator->addConfig($configDir . '/services.neon');
     }
 }

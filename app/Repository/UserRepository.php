@@ -1,10 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Repository;
 
+use App\DTO\User\UpdateUserData;
 use App\Entity\User;
-use App\Enum\Role;
+use App\Helper\EntityChangeHelper;
 use Nette\Database\Explorer;
+use Nette\Database\Table\ActiveRow;
 
 final class UserRepository implements UserRepositoryInterface
 {
@@ -48,11 +52,24 @@ final class UserRepository implements UserRepositoryInterface
     {
         $hashedPassword = password_hash($user->getPasswordHash(), PASSWORD_BCRYPT);
         $this->db->table('user')->insert([
-            'email'        => $user->getEmail(),
-            'passwordHash' => $hashedPassword,
-            'name'         => $user->getName(),
-            'role'         => $user->getRole()->value,
+            'email'         => $user->getEmail(),
+            'password_hash' => $hashedPassword,
+            'name'          => $user->getName(),
+            'role'          => $user->getRole()->value,
         ]);
+    }
+
+    public function update(User $user, UpdateUserData $dto): void
+    {
+        $changes = EntityChangeHelper::diff($dto, $user);
+
+        if (!$changes) {
+            return;
+        }
+
+        $this->db->table('user')
+            ->where('id', $user->getId())
+            ->update($changes);
     }
 
     public function delete(int $id): void
@@ -60,13 +77,8 @@ final class UserRepository implements UserRepositoryInterface
         $this->db->table('user')->where('id', $id)->delete();
     }
 
-    private function hydrateUser(\Nette\Database\Table\ActiveRow $row): User
+    private function hydrateUser(ActiveRow $row): User
     {
-        return new User(
-            email: $row->email,
-            passwordHash: $row->passwordHash ?? $row->password, // fallback in case of legacy column
-            name: $row->name,
-            role: Role::from($row->role),
-        );
+        return User::fromRow($row);
     }
 }

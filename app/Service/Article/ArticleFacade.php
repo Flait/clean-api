@@ -1,7 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Service\Article;
 
+use App\DTO\Article\ArticleListResponse;
+use App\DTO\Article\ArticleResponse;
 use App\DTO\Article\CreateArticleData;
 use App\DTO\Article\UpdateArticleData;
 use App\Entity\Article;
@@ -10,23 +14,34 @@ use App\Enum\Action;
 use App\Exception\NotFoundException;
 use App\Repository\Article\ArticleRepositoryInterface;
 use App\Service\Authorization\AuthorizationService;
+use Symfony\Component\Serializer\SerializerInterface;
 
 final class ArticleFacade implements ArticleFacadeInterface
 {
     public function __construct(
         private ArticleRepositoryInterface $articleRepository,
         private AuthorizationService $authorizationService,
+        private SerializerInterface $serializer,
     ) {
     }
 
-    /** @return Article[] */
-    public function list(User $user): array
+    public function list(User $user): ArticleListResponse
     {
         $this->authorizationService->assertCan($user, Action::ARTICLE_LIST);
-        return $this->articleRepository->findAll();
+
+        $articles = $this->articleRepository->findAll();
+
+        $response = array_map(
+            fn (array $data) => $this->serializer->denormalize($data, ArticleResponse::class),
+            $this->serializer->normalize($articles)
+        );
+
+        return new ArticleListResponse(
+            articles: $response,
+        );
     }
 
-    public function detail(User $user, int $id): Article
+    public function detail(User $user, int $id): ArticleResponse
     {
         $this->authorizationService->assertCan($user, Action::ARTICLE_DETAIL);
 
@@ -36,7 +51,11 @@ final class ArticleFacade implements ArticleFacadeInterface
             throw new NotFoundException('Article not found', 404);
         }
 
-        return $article;
+
+        return $this->serializer->denormalize(
+            $this->serializer->normalize($article),
+            ArticleResponse::class
+        );
     }
 
     public function create(User $user, CreateArticleData $data): void
@@ -62,10 +81,7 @@ final class ArticleFacade implements ArticleFacadeInterface
 
         $this->authorizationService->assertCan($user, Action::ARTICLE_UPDATE, $article->getAuthorId());
 
-        $article->setTitle($data->title);
-        $article->setContent($data->content);
-
-        $this->articleRepository->update($article);
+        $this->articleRepository->update($article, $data);
     }
 
     public function delete(User $user, int $id): void

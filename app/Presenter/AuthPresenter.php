@@ -1,63 +1,33 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Presenter;
 
-use App\DTO\User\CreateUserData;
-use App\Entity\User;
-use App\Enum\Role;
-use App\Exception\ForbiddenException;
-use App\Repository\UserRepositoryInterface;
-use App\Response\EmptyResponse;
-use Firebase\JWT\JWT;
+use App\DTO\Auth\LoginData;
+use App\DTO\Auth\RegisterUserData;
+use App\Response\SimpleResponse;
+use App\Service\Auth\AuthService;
 use Nette\Application\Responses\JsonResponse;
 use Nette\DI\Attributes\Inject;
 
 final class AuthPresenter extends BasePresenter
 {
     #[Inject]
-    public UserRepositoryInterface $userRepository;
+    public AuthService $authService;
 
-    public function actionRegister(): EmptyResponse
+    public function actionRegister(): void
     {
-        $data = $this->parseJsonBody();
-
-        $dto = new CreateUserData(
-            email: $data['email'],
-            password: $data['password'],
-            name: $data['name'],
-            role: Role::from($data['role']),
-        );
-
-        $user = new User(
-            email: $dto->email,
-            passwordHash: $dto->password,
-            name: $dto->name,
-            role: $dto->role,
-        );
-
-        $this->userRepository->save($user);
-
-        return new EmptyResponse(201);
+        $dto = $this->createDto(RegisterUserData::class, $this->parseJsonBody());
+        $this->authService->register($dto);
+        $this->sendResponse(new SimpleResponse(201, 'User registered successfully'));
     }
 
     public function actionLogin(): JsonResponse
     {
-        $data = $this->parseJsonBody();
+        $dto = $this->createDto(LoginData::class, $this->parseJsonBody());
+        $token = $this->authService->login($dto->email, $dto->password);
 
-        $user = $this->userRepository->findByEmail($data['email']);
-        if (!$user || !password_verify($data['password'], $user->getPasswordHash())) {
-            throw new ForbiddenException('Invalid credentials');
-        }
-
-        $payload = [
-            'sub'  => $user->getEmail(),
-            'role' => $user->getRole()->value,
-            'iat'  => time(),
-            'exp'  => time() + 3600,
-        ];
-
-        $jwt = JWT::encode($payload, $_ENV['JWT_SECRET'], 'HS256');
-
-        return new JsonResponse(['token' => $jwt]);
+        return $this->sendResponse(new JsonResponse(['token' => $token]));
     }
 }

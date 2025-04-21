@@ -1,15 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\DTO\Article;
 
-final readonly class ArticleListResponse
+final class ArticleListResponse
 {
-    /** @param ArticleResponse[] $articles */
+    /**
+     * @param ArticleResponse[] $articles
+     */
     public function __construct(
-        public array $articles,
-        public int $page,
-        public int $perPage,
-        public int $total,
+        public readonly array $articles
     ) {
     }
 }

@@ -1,8 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Nette\Database\Table\ActiveRow;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'article')]
@@ -23,10 +26,10 @@ class Article
     #[ORM\JoinColumn(name: 'author_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
     private User $author;
 
-    #[ORM\Column(type: 'datetime_immutable')]
+    #[ORM\Column(name: 'created_at', type: 'datetime_immutable')]
     private \DateTimeImmutable $createdAt;
 
-    #[ORM\Column(type: 'datetime_immutable')]
+    #[ORM\Column(name: 'updated_at', type: 'datetime_immutable')]
     private \DateTimeImmutable $updatedAt;
 
     public function __construct(string $title, string $content, User $author)
@@ -98,5 +101,25 @@ class Article
     private function touchUpdatedAt(): void
     {
         $this->updatedAt = new \DateTimeImmutable();
+    }
+
+    public static function fromRow(ActiveRow $row, User $author): self
+    {
+        $article = new self(
+            title: $row->title,
+            content: $row->content,
+            author: $author,
+        );
+
+        $article->setCreatedAt(
+            \DateTimeImmutable::createFromInterface($row->created_at)
+        );
+        $article->setUpdatedAt(
+            \DateTimeImmutable::createFromInterface($row->updated_at)
+        );
+
+        $article->id = (int) $row->id;
+
+        return $article;
     }
 }

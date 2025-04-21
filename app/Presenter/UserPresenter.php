@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Presenter;
 
 use App\DTO\User\CreateUserData;
 use App\DTO\User\UpdateUserData;
-use App\Response\EmptyResponse;
+use App\Response\SimpleResponse;
 use App\Service\User\UserFacade;
 use Nette\Application\Responses\JsonResponse;
 use Nette\DI\Attributes\Inject;
@@ -14,56 +16,46 @@ final class UserPresenter extends BasePresenter
     #[Inject]
     public UserFacade $userFacade;
 
-    public function actionList(): JsonResponse
+    public function actionList(): void
     {
         $actor = $this->getUserEntity();
-        return new JsonResponse($this->userFacade->list($actor));
+
+        $response = $this->userFacade->list($actor);
+        $this->sendResponse(new JsonResponse($response));
     }
 
-    public function actionDetail(int $id): JsonResponse
+    public function actionDetail(int $id): void
     {
         $actor = $this->getUserEntity();
-        return new JsonResponse($this->userFacade->detail($actor, $id));
+        $response = $this->userFacade->detail($actor, $id);
+        $this->sendResponse(new JsonResponse($response));
     }
 
-    public function actionCreate(): EmptyResponse
+    public function actionCreate(): void
     {
         $actor = $this->getUserEntity();
-        $data = $this->parseJsonBody();
-
-        $dto = new CreateUserData(
-            email: $data['email'],
-            password: $data['password'],
-            name: $data['name'],
-            role: \App\Enum\Role::from($data['role'])
-        );
+        $dto = $this->createDto(CreateUserData::class, $this->parseJsonBody());
 
         $this->userFacade->create($actor, $dto);
 
-        return new EmptyResponse(201);
+        $this->sendResponse(new SimpleResponse(201, 'User created'));
     }
 
-    public function actionUpdate(int $id): EmptyResponse
+    public function actionUpdate(int $id): void
     {
         $actor = $this->getUserEntity();
-        $data = $this->parseJsonBody();
-
-        $dto = new UpdateUserData(
-            email: $data['email'],
-            name: $data['name'],
-            role: \App\Enum\Role::from($data['role'])
-        );
+        $dto = $this->createDto(UpdateUserData::class, $this->parseJsonBody());
 
         $this->userFacade->update($actor, $id, $dto);
 
-        return new EmptyResponse();
+        $this->sendResponse(new SimpleResponse(200, 'User updated'));
     }
 
-    public function actionDelete(int $id): EmptyResponse
+    public function actionDelete(int $id): void
     {
         $actor = $this->getUserEntity();
         $this->userFacade->delete($actor, $id);
 
-        return new EmptyResponse();
+        $this->sendResponse(new SimpleResponse(200, 'User deleted'));
     }
 }

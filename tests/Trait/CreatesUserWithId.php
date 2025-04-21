@@ -1,6 +1,8 @@
 <?php
 
-namespace App\Tests;
+declare(strict_types=1);
+
+namespace App\Tests\Trait;
 
 use App\Entity\User;
 use App\Enum\Role;

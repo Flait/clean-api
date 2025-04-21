@@ -1,0 +1,7 @@
+parameters:
+    jwtSecret: 'test-secret'
+    articleCacheExpire: '1 minute'
+
+database:
+    default:
+        dsn: 'sqlite::memory:'
